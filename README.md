@@ -38,9 +38,12 @@ A visualization built on top of the [2009 data expo dataset](https://community.a
 
 ### Built With
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+This project was built with the following frameworks and libraries:
 
-* [Dask](https://dask.org/)
+* [SQLite](https://www.sqlite.org/index.html)
+* [D3](https://d3js.org/)
+* [React](https://reactjs.org/)
+* [React-d3](https://react-d3-library.github.io/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
