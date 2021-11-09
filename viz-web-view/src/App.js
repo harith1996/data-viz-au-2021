@@ -1,11 +1,11 @@
 import "./App.css";
-import calendarComponent from "./components/calendar";
+import CalendarComponent from "./components/calendar";
 let jsonData = require("./dji.json");
 
 function App() {
 	return (
 		<div className="App">
-			<calendarComponent data = {jsonData}/>
+			<CalendarComponent data = {jsonData}/>
 		</div>
 	);
 }
