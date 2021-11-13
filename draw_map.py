@@ -10,6 +10,20 @@ df_flight_paths.head()
 
 fig = go.Figure()
 
+#flight_paths = []
+for i in range(len(df_flight_paths)):
+    fig.add_trace(
+        go.Scattergeo(
+            locationmode = 'USA-states',
+            lon = [df_flight_paths['start_lon'][i], df_flight_paths['end_lon'][i]],
+            lat = [df_flight_paths['start_lat'][i], df_flight_paths['end_lat'][i]],
+            mode = 'lines',
+            line = dict(width = 1,color = 'red'),
+            opacity = float(df_flight_paths['Total'][i]) / float(df_flight_paths['Total'].max()),
+			showlegend = False,
+        )
+    )
+
 fig.add_trace(go.Scattergeo(
     locationmode = 'USA-states',
     lon = df_airports['lon'],
@@ -26,18 +40,6 @@ fig.add_trace(go.Scattergeo(
         )
     )))
 
-flight_paths = []
-for i in range(len(df_flight_paths)):
-    fig.add_trace(
-        go.Scattergeo(
-            locationmode = 'USA-states',
-            lon = [df_flight_paths['start_lon'][i], df_flight_paths['end_lon'][i]],
-            lat = [df_flight_paths['start_lat'][i], df_flight_paths['end_lat'][i]],
-            mode = 'lines',
-            line = dict(width = 1,color = 'red'),
-            opacity = float(df_flight_paths['Total'][i]) / float(df_flight_paths['Total'].max()),
-        )
-    )
 
 fig.update_layout(
     title_text = '1987 Flights <br>(Hover for airport names)',
