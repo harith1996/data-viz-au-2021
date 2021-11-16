@@ -26,9 +26,6 @@ export default function CalendarBuilder(
 	const QUANT = d3.map(data, quant);
 	const I = d3.range(WEEKS.length);
 
-	// const countDay = weekday === "sunday" ? (i) => i : (i) => (i + 6) % 7;
-	// const timeWeek = weekday === "sunday" ? d3.utcSunday : d3.utcMonday;
-	// const weekDays = weekday === "weekday" ? 5 : 7;
 	const getYear = week => Math.floor(week/53);
 	const getYearOffset = year => year - STARTING_YEAR;
 	const getIndexesByYear = year => d3.range((year - STARTING_YEAR)*53, year*53); 
@@ -39,34 +36,9 @@ export default function CalendarBuilder(
 	const max = d3.quantile(QUANT, 0.9975, Math.abs);
 	const color = d3.scaleSequential([-max, +max], colors).unknown("none");
 
-	// // Construct formats.
-	// formatMonth = d3.utcFormat(formatMonth);
-
-	// // Compute titles.
-	// if (title === undefined) {
-	// 	const formatDate = d3.utcFormat("%B %-d, %Y");
-	// 	const formatValue = color.tickFormat(100, yFormat);
-	// 	title = (i) => `${formatDate(X[i])}\n${formatValue(Y[i])}`;
-	// } else if (title !== null) {
-	// 	const T = d3.map(data, title);
-	// 	title = (i) => T[i];
-	// }
-
 	// Group the index by year, in reverse input order. (Assuming that the input is
 	// chronological, this will show years in reverse chronological order.)
 	const GROUPED_YEARS = d3.groups(I, (i) => getYear(WEEKS[i])).reverse();
-
-	// function pathMonth(t) {
-	// 	const d = Math.max(0, Math.min(weekDays, countDay(t.getUTCDay())));
-	// 	const w = timeWeek.count(d3.utcYear(t), t);
-	// 	return `${
-	// 		d === 0
-	// 			? `M${w * cellSize},0`
-	// 			: d === weekDays
-	// 			? `M${(w + 1) * cellSize},0`
-	// 			: `M${(w + 1) * cellSize},0V${d * cellSize}H${w * cellSize}`
-	// 	}V${weekDays * cellSize}`;
-	// }
 
 	const svg = d3
 		.create("svg")
@@ -101,25 +73,6 @@ export default function CalendarBuilder(
 		.attr("dy", "0.31em")
 		.text((d, i) => d[0]);
 	
-		// .append("g")
-		// .attr("text-anchor", "end")
-		// .data(GROUPED_YEARS)
-		// .join("text")
-		// .attr("x", -5)
-		// .attr("y", (data) => (data[0] - Math.min(...YEARS) + 0.5) * cellSize)
-		// .attr("dy", "0.31em")
-		// .text((d, i) => d[0]);;
-
-	// yearSvg.append("g")
-	// 	.attr("text-anchor", "end")
-	// 	.selectAll("text")
-	// 	.data(GROUPED_YEARS)
-	// 	.join("text")
-	// 	.attr("x", -cellSize)
-	// 	.attr("y", (data) => (data[0] - Math.min(...YEARS) + 0.5) * cellSize)
-	// 	.attr("dy", "0.31em")
-	// 	.text((d) => d[0]);
-
 	const cell = yearSvg
 		.append("g")
 		.selectAll("rect")
@@ -131,8 +84,39 @@ export default function CalendarBuilder(
 			"x",
 			(d, i) => (WEEKS[d] % (getYear(WEEKS[d]) * 53)) * cellSize + 0.5
 		)
-		// .attr("y", (i) => getYearOffset(getYear(CUMULATIVE_WEEKS[i])) * cellSize + 0.5)
 		.attr("fill", (i) => color(QUANT[i]));
+
+
+	return Object.assign(svg.node(), { scales: { color } });
+}
+
+	// const countDay = weekday === "sunday" ? (i) => i : (i) => (i + 6) % 7;
+	// const timeWeek = weekday === "sunday" ? d3.utcSunday : d3.utcMonday;
+	// const weekDays = weekday === "weekday" ? 5 : 7;
+	// // Construct formats.
+	// formatMonth = d3.utcFormat(formatMonth);
+
+	// // Compute titles.
+	// if (title === undefined) {
+	// 	const formatDate = d3.utcFormat("%B %-d, %Y");
+	// 	const formatValue = color.tickFormat(100, yFormat);
+	// 	title = (i) => `${formatDate(X[i])}\n${formatValue(Y[i])}`;
+	// } else if (title !== null) {
+	// 	const T = d3.map(data, title);
+	// 	title = (i) => T[i];
+	// }
+	
+	// function pathMonth(t) {
+	// 	const d = Math.max(0, Math.min(weekDays, countDay(t.getUTCDay())));
+	// 	const w = timeWeek.count(d3.utcYear(t), t);
+	// 	return `${
+	// 		d === 0
+	// 			? `M${w * cellSize},0`
+	// 			: d === weekDays
+	// 			? `M${(w + 1) * cellSize},0`
+	// 			: `M${(w + 1) * cellSize},0V${d * cellSize}H${w * cellSize}`
+	// 	}V${weekDays * cellSize}`;
+	// }
 
 	// if (title) cell.append("title").text(title);
 
@@ -159,6 +143,3 @@ export default function CalendarBuilder(
 	// 	)
 	// 	.attr("y", -5)
 	// 	.text(formatMonth);
-
-	return Object.assign(svg.node(), { scales: { color } });
-}
