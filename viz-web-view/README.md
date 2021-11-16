@@ -5,6 +5,11 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Prerequisites
 You need NodeJS. [Install it from here](https://nodejs.org/en/download/).
 
+Also make sure Node Package Manager (npm) is at version 8.1.0 or above. To install the latest version of npm, after installing NodeJS
+run :
+
+`npm install -g npm@latest`.
+
 ## Available Scripts
 
 In the project directory, you can run:
