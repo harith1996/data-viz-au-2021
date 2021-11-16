@@ -1,9 +1,7 @@
 import React from "react";
-import rd3 from "react-d3-library";
-import CalendarBuilder from "../d3/calendarBuilder";
-const RD3Component = rd3.Component;
+
 export default class CalendarComponent extends React.Component {
-	constructor(props) {
+    constructor(props) {
 		super(props);
 		this.d3node = CalendarBuilder(props.data, {
 			weekOfYear: (d) => d.Week,
