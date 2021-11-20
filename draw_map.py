@@ -7,8 +7,10 @@ from dash import Dash, dcc, html, Input, Output, no_update
 
 df_airports = pd.read_csv('airport_coords.csv')
 df_airports.head()
+#df_airports = df_airports.sort_values(by='airport')[:10]
 
 df_flight_paths = pd.read_csv('path1987.csv')
+#df_flight_paths = df_flight_paths.iloc[:50]
 df_flight_paths.head()
 
 fig = go.Figure()
@@ -35,6 +37,7 @@ for i in range(len(df_flight_paths)):
 			#lat = lats,
             mode = 'lines',
             line = dict(width = 1,color = 'red'),
+			name = df_flight_paths['Origin'][i],
             #opacity = float(df_flight_paths['Total'][i]) / float(df_flight_paths['Total'].max()),
 			opacity = 0.5,
 			showlegend = False,
@@ -54,7 +57,7 @@ airports = go.Scattergeo(
     mode = 'markers',
     marker = dict(
         size = 5,
-        color = 'rgb(255, 0, 0)',
+        color = 'black',
         line = dict(
             width = 3,
             color = 'rgba(68, 68, 68, 0)'
@@ -63,11 +66,13 @@ airports = go.Scattergeo(
 #)
 fig.add_trace(airports)
 
-fig.update_traces(hoverinfo="none", hovertemplate=None)
+#fig.update_traces(hoverinfo="none", hovertemplate=None)
 
 fig.update_layout(
     title_text = '1987 Flights <br>(Hover for airport names)',
     showlegend = False,
+	width = 1280,
+	height = 1280,
     geo = dict(
         scope = 'north america',
         projection_type = 'azimuthal equal area',
@@ -77,20 +82,6 @@ fig.update_layout(
     ),
 )
 
-def update_point(trace, points, selector):
-	print("clicked")
-	c = list(airports.marker.color)
-	s = list(airports.marker.size)
-	for i in points.point_inds:
-		c[i] = '#bae2be'
-		s[i] = 20
-		with f.batch_update():
-			airports.marker.color = 'rgb(0,0,255)'
-			airports.marker.size = 5
-
-#airports.on_click(fig.update_traces(marker=dict(color='RoyalBlue')))
-#fig.show()
-#plotly.offline.plot(fig, "map.html")
 
 app = Dash(__name__)
 app.layout = html.Div([dcc.Graph(id='my-graph', figure=fig, clear_on_unhover=True), dcc.Tooltip(id='graph-tooltip')])
@@ -99,41 +90,23 @@ app.layout = html.Div([dcc.Graph(id='my-graph', figure=fig, clear_on_unhover=Tru
     Output('my-graph', 'figure'),
     #Output("graph-tooltip", "bbox"),
  #   Output("graph-tooltip", "children"),
-    Input('my-graph', 'hoverData'),
+    Input('my-graph', 'clickData'),
 )
 
-def display_hover(hoverData):
-	if hoverData is None:
+def display_click(clickData):
+	if clickData is None:
 		return fig
-	pt = hoverData['points'][0]
+	pt = clickData['points'][0]
 	num = pt['pointNumber']
-	print(num, list(df_airports.iloc[num]), df_airports.iloc[num][0])
-	df_conn = df_flight_paths[df_flight_paths['Origin'] == df_airports.iloc[num][0]]
+	curr = df_airports.iloc[num][0]
+	print(num, list(df_airports.iloc[num]), curr)
+	df_conn = df_flight_paths[df_flight_paths['Origin'] == curr]
 	print(df_conn.head())
 	lon2 = []
 	lat2 = []
-	#for i in range(len(df_conn)):
-	#	lon2 
-	#	fig.add_trace(go.Scattergeo(locationmode = 'USA-states',
-    #        lon = [df_conn['start_lon'][i], df_conn['end_lon'][i]],
-    #        lat = [df_conn['start_lat'][i], df_conn['end_lat'][i]],
-	#		mode = 'lines',
-    #        line = dict(width = 1,color = 'black'),
-    #        opacity = float(df_conn['Total'][i]) / float(df_conn['Total'].max()),
-	#		showlegend = False,
-    #    ))
-	fig.update_traces(line=dict(color='black'), selector=dict(mode='lines'))
-	#fig.update_layout(
-    #title_text = 'Hovered',
-    #showlegend = False,
-    #geo = dict(
-    #    scope = 'north america',
-    #    projection_type = 'azimuthal equal area',
-    #    showland = True,
-    #    landcolor = 'rgb(243, 243, 243)',
-    #    countrycolor = 'rgb(204, 204, 204)',
-    #),
-	#)
+	fig.for_each_trace(
+		lambda trace: trace.update(line=dict(color='black', width=3)) if trace.name == curr else (),
+	)
 	return fig
 
 app.run_server(debug=True, use_reloader=False)  # Turn off reloader if inside Jupyter
