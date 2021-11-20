@@ -1,0 +1,19 @@
+{
+	"filters": [
+		{
+			"attributeName": "Airline",
+			"selectionType": "multiple",
+			"values": ["United Airlines", "American Airlines", "Delta Airlines"]
+		},
+		{
+			"attributeName": "Origin",
+			"selectionType": "multiple",
+			"values": ["JFK", "SFO", "ABIA"]
+		},
+		{
+			"attributeName": "Destination",
+			"selectionType": "multiple",
+			"values": ["JFK", "SFO", "ABIA"]
+		}
+	]
+}
