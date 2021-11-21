@@ -66,23 +66,25 @@ export default class Filters extends React.Component {
 						case "multiple":
 							let element = (
 								<div className='filter'>
-									<label>{filter.attributeName}</label>
-									{filter.values.map((value) => {
-										let inputName = [filter.attributeName,
-										value].join("#");
-										return (
-											<div>
-												<input
-													type="checkbox"
-													name={inputName}
-													filtertype="multiple"
-												></input>
-												<label htmlFor={inputName}>
-													{value}
-												</label>
-											</div>
-										);
-									})}
+									<label className='filter-attribute'>{filter.attributeName}</label>
+									<div className='checkbox-list'>
+										{filter.values.map((value) => {
+											let inputName = [filter.attributeName,
+											value].join("#");
+											return (
+												<div>
+													<input
+														type="checkbox"
+														name={inputName}
+														filtertype="multiple"
+													></input>
+													<label htmlFor={inputName}>
+														{value}
+													</label>
+												</div>
+											);
+										})}
+									</div>
 								</div>
 							);
 							return element;

@@ -1,5 +1,5 @@
-import CalendarComponent from "./components/calendar";
-import Filters from './components/filters'
+import CalendarComponent from "./components/Calendar";
+import Filters from './components/Filters'
 
 let data = require('./json/generated_data_1987_2008.json');
 let filterMetadata = require('./json/filters.json')

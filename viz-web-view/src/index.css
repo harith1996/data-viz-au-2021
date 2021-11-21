@@ -15,8 +15,30 @@ code {
 .filterForm {
   display: flex;
   flex-direction: row;
+  font-size: 0.8em;
+  padding-left: 20px;
 }
 
 .filter {
   margin-left: 20px;
+}
+
+.checkbox-list  {
+  max-height: 100px;
+  overflow-y: scroll;
+}
+
+.filter-attribute {
+  padding: 95px 0;
+  font-weight: bold;
+}
+
+.cell-tooltip {
+  position: absolute;
+  cursor: default;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 15px;
+  padding: 8px;
+  color: white;
+  font-family: SYSTEM-UI;
 }

@@ -8,7 +8,8 @@ export default class CalendarComponent extends React.Component {
 		this.d3node = CalendarBuilder(props.data, {
 			weekOfYear: (d) => d.Week,
 			year: (d) => d.Year,
-			quant: (d) => d.Flights
+			quant: (d) => d.Flights,
+			title: (d) => "Week :" + d.Week + "\nYear:" + d.Year
 		});
 		this.state = { d3: "" };
 	}
