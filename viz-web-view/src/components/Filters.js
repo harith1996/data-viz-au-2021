@@ -11,44 +11,44 @@ export default class Filters extends React.Component {
 	}
 
 	handleChange(event) {
-		let [attributeName, attributeValue] = event.target.name.split('#');
-		let filterType = event.target.getAttribute('filtertype');
+		let [attributeName, attributeValue] = event.target.name.split("#");
+		let filterType = event.target.getAttribute("filtertype");
 		let isSelected = false;
-		switch(filterType) {
-			case 'multiple':
+		switch (filterType) {
+			case "multiple":
 				isSelected = event.target.checked;
 				break;
 			default:
 				isSelected = false;
 		}
 		this.updateState(attributeName, attributeValue, filterType, isSelected);
-	}	
-	
+	}
+
 	updateState(attributeName, attributeValue, inputType, isSelected) {
-		let attribute = this.state.form.find( a => a.name === attributeName);
-		if(attribute) {
-			if(isSelected) {
+		let attribute = this.state.form.find((a) => a.name === attributeName);
+		if (attribute) {
+			if (isSelected) {
 				let selectedFilters = attribute.filters;
 				selectedFilters.push({
 					value: attributeValue,
-					isSelected: isSelected
+					isSelected: isSelected,
 				});
-			}
-			else {
-				let filter = attribute.filters.find( f => f.value === attributeValue);
+			} else {
+				let filter = attribute.filters.find(
+					(f) => f.value === attributeValue
+				);
 				attribute.filters.splice(attribute.filters.indexOf(filter), 1);
 			}
-		}
-		else {
+		} else {
 			attribute = {
 				name: attributeName,
 				filters: [
 					{
 						value: attributeValue,
-						isSelected: isSelected
-					}
-				]
-			}
+						isSelected: isSelected,
+					},
+				],
+			};
 			this.state.form.push(attribute);
 		}
 		console.log(this.state.form);
@@ -60,22 +60,31 @@ export default class Filters extends React.Component {
 
 	render() {
 		return (
-			<form className='filterForm' onChange={this.handleChange}>
+			<form className="filterForm" onChange={this.handleChange}>
 				{this.metadata.filters.map((filter) => {
+					let out;
 					switch (filter.selectionType) {
 						case "multiple":
-							let element = (
-								<div className='filter'>
-									<label className='filter-attribute'>{filter.attributeName}</label>
-									<div className='checkbox-list'>
+							out = (
+								<div
+									key={filter.attributeName}
+									className="filter"
+								>
+									<label className="filter-attribute">
+										{filter.attributeName}
+									</label>
+									<div className="checkbox-list">
 										{filter.values.map((value) => {
-											let inputName = [filter.attributeName,
-											value].join("#");
+											let inputName = [
+												filter.attributeName,
+												value,
+											].join("#");
 											return (
 												<div>
 													<input
 														type="checkbox"
 														name={inputName}
+														key={inputName}
 														filtertype="multiple"
 													></input>
 													<label htmlFor={inputName}>
@@ -87,10 +96,12 @@ export default class Filters extends React.Component {
 									</div>
 								</div>
 							);
-							return element;
+							break;
+						default:
+							out = <div></div>;
 					}
+					return out;
 				})}
-				
 			</form>
 		);
 	}

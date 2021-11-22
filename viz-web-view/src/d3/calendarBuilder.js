@@ -27,20 +27,19 @@ export default function CalendarBuilder(
 	// Compute values.
 	const WEEKS = d3.map(data, (d) => year(d) * 53 + weekOfYear(d));
 	const YEARS = d3.map(data, year).filter(onlyUnique);
-	const STARTING_YEAR = Math.min(...YEARS);
 	const QUANT = d3.map(data, quant);
 	const I = d3.range(WEEKS.length);
 
 	const getYear = (week) => Math.floor(week / 53);
-	const getYearOffset = (year) => year - STARTING_YEAR;
-	const getIndexesByYear = (year) =>
-		d3.range((year - STARTING_YEAR) * 53, year * 53);
 	const heightOfYear = cellSize + 2;
 
 	// Compute a color scale. This assumes a diverging color scheme where the pivot
 	// is zero, and we want symmetric difference around zero.
 	const max = d3.quantile(QUANT, 0.9975, Math.abs);
-	const colorComputer = d3.scaleQuantile().domain([0, +max]).range(colors);
+	const colorComputer = d3
+		.scaleQuantile()
+		.domain([0, +max])
+		.range(colors);
 	const color = colorComputer.unknown("none");
 
 	// Group the index by year, in reverse input order. (Assuming that the input is
@@ -51,13 +50,18 @@ export default function CalendarBuilder(
 		.create("svg")
 		.attr("width", "90%")
 		.attr("height", "50%")
-		.attr("viewBox", [0, 0, width, heightOfYear * (YEARS.length + 10) + cellSize])
+		.attr("viewBox", [
+			0,
+			0,
+			width,
+			heightOfYear * (YEARS.length + 10) + cellSize,
+		])
 		.attr("style", "max-width: 100%; height: auto; height: intrinsic;")
 		.attr("font-family", "sans-serif")
 		.attr("font-size", 10);
 
-	const weekAnchor = svg
-		.append("g")
+	//Week Axis
+	svg.append("g")
 		.selectAll("text")
 		.data(d3.range(1, 53))
 		.join("text")
@@ -71,9 +75,11 @@ export default function CalendarBuilder(
 		.join("g")
 		.attr(
 			"transform",
-			(d, i) => `translate(${cellSize*4}, ${heightOfYear * i + cellSize + 2})`
+			(d, i) =>
+				`translate(${cellSize * 4}, ${heightOfYear * i + cellSize + 2})`
 		);
 
+	//Year Axis
 	yearSvg
 		.append("text")
 		.attr("x", -5)
@@ -85,18 +91,13 @@ export default function CalendarBuilder(
 		.select("body")
 		.append("div")
 		.attr("class", "cell-tooltip")
-		.style("opacity", 0);
+		.style("opacity", 0)
+		.on("mouseover", (event, data) => {
+			tooltip.style("opacity", 0).style("top", 0).style("left", 0);
+		});
 
-	let cellBorder = svg
-	.append('rect')
-	.attr('fill', 'none')
-	.attr('stroke-width', '1')
-	.attr('stroke', 'blue')
-	.attr('width', cellSize)
-	.attr('height', cellSize)
-	.style('opacity', 0);
-
-	const cell = yearSvg
+	//cell
+	yearSvg
 		.append("g")
 		.selectAll("rect")
 		.data((d, i) => d[1])
@@ -108,30 +109,45 @@ export default function CalendarBuilder(
 			(d, i) => (WEEKS[d] % (getYear(WEEKS[d]) * 53)) * cellSize + 0.5
 		)
 		.attr("fill", (d) => color(QUANT[d]))
-		.on("mouseover", function (event, d) {
-			tooltip.transition().duration(200).style("opacity", 0.9);
-			tooltip.html('Week ' + (WEEKS[d] % (getYear(WEEKS[d]) * 53)) + ', ' + getYear(WEEKS[d]) + '<br/>' + QUANT[d] + ' flights')
-				.style("left", event.pageX + "px")
-				.style("top", event.pageY - 28 + "px");
-			cellBorder.style("opacity", 1);
-			cellBorder.attr("x", (d, i) => event.pageX)
-			.attr("y", (d, i) => event.pageY - 28);
+		.on("mouseover", handleCellMouseOver.bind(this))
+		.on("mouseout", (event, d) => {
+			tooltip.style("opacity", 0).style("left", 0).style("top", 0);
+			event.currentTarget.style.stroke = "none";
+			event.currentTarget.style.strokeWidth = "0";
 		})
-		.on("mouseout", (event, d)=> {
-			tooltip.transition()		
-                	.duration(500)
-					.style("opactiy", 0);
-		} )
-		.style('border', '2px solid red');
+		.style("border", "2px solid red");
 
-		const colorLegend = Legend( colorComputer ,  {
-			title: "No. of flights",
-			tickFormat: '.0f'
-		  });
-		svg.append(()=>colorLegend)
-		.attr('x', (5* cellSize))
-		.attr('y', (YEARS.length + 5) * cellSize);
-	return Object.assign(svg.node(), { scales: { color }, colorLegend: colorLegend });
+	const colorLegend = Legend(colorComputer, {
+		title: "No. of flights",
+		tickFormat: ".0f",
+	});
+	svg.append(() => colorLegend)
+		.attr("x", 5 * cellSize)
+		.attr("y", (YEARS.length + 5) * cellSize);
+
+	function handleCellMouseOver(event, d) {
+		let cell = event.currentTarget;
+		tooltip
+			.style("opacity", 0.9)
+			.html(
+				"Week " +
+					(WEEKS[d] % (getYear(WEEKS[d]) * 53)) +
+					", " +
+					getYear(WEEKS[d]) +
+					"<br/>" +
+					QUANT[d] +
+					" flights"
+			)
+			.style("left", event.pageX + cellSize + "px")
+			.style("top", event.pageY - 28 - cellSize + "px");
+		cell.style.stroke = "blue";
+		cell.style.strokeWidth = "1";
+	}
+
+	return Object.assign(svg.node(), {
+		scales: { color },
+		colorLegend: colorLegend,
+	});
 }
 
 // const countDay = weekday === "sunday" ? (i) => i : (i) => (i + 6) % 7;
