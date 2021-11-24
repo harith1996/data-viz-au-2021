@@ -9,7 +9,7 @@ import Legend from "../d3/colorLegend";
 
 const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
 //how many colors should be used to represent quant
-const COLOR_SPLIT = 8;
+const COLOR_SPLIT = 11;
 
 function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index;
@@ -25,7 +25,8 @@ export default function CalendarBuilder(
 		cellSize = 21, // width and height of an individual day, in pixels
 		formatMonth = "%b", // format specifier string for months (above the chart)
 		yFormat, // format specifier string for values (in the title)
-		colors = d3.schemeBrBG[5],
+		colors = d3.interpolateGreens,
+		normalized = false
 	} = {}
 ) {
 	// Compute values.
@@ -39,12 +40,13 @@ export default function CalendarBuilder(
 
 	// Compute a color scale. This assumes a discrete color scheme where the starting
 	// is minimum quanitity in the data, with COLOR_SPLIT colors upto maximum
-	const max = d3.quantile(QUANT, 0.9985, Math.abs);
-	const min = d3.quantile(QUANT, 0.0015, Math.abs);
-	const colorComputer = d3
-		.scaleQuantile()
-		.domain([min, +max])
-		.range(colors);
+	const max = d3.quantile(QUANT, 0.965, Math.abs);
+	const min = d3.quantile(QUANT, 0.035, Math.abs);
+	// const colorComputer = d3
+	// 	.scaleQuantile()
+	// 	.domain([min, +max])
+	// 	.range(colors);
+	const colorComputer = d3.scaleSequential([min, max], colors);
 	const color = colorComputer.unknown("none");
 
 	// Group the index by year, in reverse input order. (Assuming that the input is
@@ -65,7 +67,7 @@ export default function CalendarBuilder(
 		.attr("font-family", "sans-serif")
 		.attr("font-size", 10);
 
-		
+	//Month axis
 	svg.append("g")
 	.selectAll("text")
 	.data(d3.range(0, 12))
@@ -127,11 +129,13 @@ export default function CalendarBuilder(
 		.on("mouseover", handleCellMouseOver)
 		.on("mouseout", handleCellMouseOut)
 		.on("mousedown", handleCellMouseDown)
-		.on("click", handleCellClick);
+		.on("click", handleCellClick)
+		.style("stroke", "lightgray")
+		.style("stroke-width", 1);
 
 	const colorLegend = Legend(colorComputer, {
-		title: "No. of flights",
-		tickFormat: ".0f",
+		title: normalized? "% of flights" : "No. of flights",
+		tickFormat: normalized? ".02f" : "0.0f",
 	});
 
 	let selectedCells = [];
@@ -142,16 +146,17 @@ export default function CalendarBuilder(
 
 	function handleCellMouseOver(event, d) {
 		let cell = event.currentTarget;
+		let year = getYear(WEEKS[d]);
 		tooltip
 			.style("opacity", 0.9)
 			.html(
 				"Week " +
-					(WEEKS[d] % (getYear(WEEKS[d]) * 54)) +
+					(WEEKS[d] % year * 54) +
 					", " +
-					getYear(WEEKS[d]) +
+					year +
 					"<br/>" +
-					QUANT[d] +
-					" flights"
+					QUANT[d].toFixed(2) +
+					"% of all " + year + " flights"
 			)
 			.style("left", event.pageX + cellSize + "px")
 			.style("top", event.pageY - 28 - cellSize + "px");
@@ -165,8 +170,8 @@ export default function CalendarBuilder(
 	function handleCellMouseOut(event, d) {
 		let cell = event.currentTarget;
 		tooltip.style("opacity", 0).style("left", 0).style("top", 0);
-		cell.style.stroke = "none";
-		cell.style.strokeWidth = "0";
+		cell.style.stroke = "lightgray";
+		cell.style.strokeWidth = "1";
 	}
 
 	function handleCellMouseDown(event, d) {
