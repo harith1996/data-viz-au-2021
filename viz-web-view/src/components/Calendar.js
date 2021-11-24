@@ -6,9 +6,9 @@ export default class CalendarComponent extends React.Component {
 	constructor(props) {
 		super(props);
 		this.d3node = CalendarBuilder(props.data, {
-			weekOfYear: (d) => d.Week,
+			weekOfYear: (d) => d.week_number,
 			year: (d) => d.Year,
-			quant: (d) => d.Flights,
+			quant: (d) => d.Total_Flights,
 			title: (d) => "Week :" + d.Week + "\nYear:" + d.Year
 		});
 		this.state = { d3: "" };

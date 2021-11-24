@@ -7,6 +7,10 @@ import "d3-interpolate";
 import "d3-scale-chromatic";
 import Legend from "../d3/colorLegend";
 
+const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
+//how many colors should be used to represent quant
+const COLOR_SPLIT = 8;
+
 function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index;
 }
@@ -21,30 +25,31 @@ export default function CalendarBuilder(
 		cellSize = 21, // width and height of an individual day, in pixels
 		formatMonth = "%b", // format specifier string for months (above the chart)
 		yFormat, // format specifier string for values (in the title)
-		colors = d3.schemeGreens[4],
+		colors = d3.schemeBrBG[5],
 	} = {}
 ) {
 	// Compute values.
-	const WEEKS = d3.map(data, (d) => year(d) * 53 + weekOfYear(d));
+	const WEEKS = d3.map(data, (d) => year(d) * 54 + weekOfYear(d));
 	const YEARS = d3.map(data, year).filter(onlyUnique);
 	const QUANT = d3.map(data, quant);
 	const I = d3.range(WEEKS.length);
 
-	const getYear = (week) => Math.floor(week / 53);
+	const getYear = (week) => Math.floor(week / 54);
 	const heightOfYear = cellSize + 2;
 
-	// Compute a color scale. This assumes a diverging color scheme where the pivot
-	// is zero, and we want symmetric difference around zero.
-	const max = d3.quantile(QUANT, 0.9975, Math.abs);
+	// Compute a color scale. This assumes a discrete color scheme where the starting
+	// is minimum quanitity in the data, with COLOR_SPLIT colors upto maximum
+	const max = d3.quantile(QUANT, 0.9985, Math.abs);
+	const min = d3.quantile(QUANT, 0.0015, Math.abs);
 	const colorComputer = d3
 		.scaleQuantile()
-		.domain([0, +max])
+		.domain([min, +max])
 		.range(colors);
 	const color = colorComputer.unknown("none");
 
 	// Group the index by year, in reverse input order. (Assuming that the input is
 	// chronological, this will show years in reverse chronological order.)
-	const GROUPED_YEARS = d3.groups(I, (i) => getYear(WEEKS[i])).reverse();
+	const GROUPED_YEARS = d3.groups(I, (i) => getYear(WEEKS[i]));
 
 	const svg = d3
 		.create("svg")
@@ -54,20 +59,30 @@ export default function CalendarBuilder(
 			0,
 			0,
 			width,
-			heightOfYear * (YEARS.length + 10) + cellSize,
+			heightOfYear * (YEARS.length + 12) + cellSize,
 		])
 		.attr("style", "max-width: 100%; height: auto; height: intrinsic;")
 		.attr("font-family", "sans-serif")
 		.attr("font-size", 10);
 
+		
+	svg.append("g")
+	.selectAll("text")
+	.data(d3.range(0, 12))
+	.join("text")
+	.attr("x", (d, i) => d * 4 * cellSize + cellSize * 3 + i*6)
+	.attr("y", -cellSize  * 1.5 )
+	.text((d) => MONTH[d]);
+
 	//Week Axis
 	svg.append("g")
 		.selectAll("text")
-		.data(d3.range(1, 53))
+		.data(d3.range(1, 54))
 		.join("text")
 		.attr("x", (d, i) => (i + 1) * cellSize + cellSize / 3)
-		.attr("y", -cellSize / 3)
+		.attr("y", -cellSize * 1.4)
 		.text((d, i) => d);
+
 
 	const yearSvg = svg
 		.selectAll("g")
@@ -76,7 +91,7 @@ export default function CalendarBuilder(
 		.attr(
 			"transform",
 			(d, i) =>
-				`translate(${cellSize * 4}, ${heightOfYear * i + cellSize + 2})`
+				`translate(${cellSize * 4}, ${heightOfYear * i + cellSize * 3 + 2 })`
 		);
 
 	//Year Axis
@@ -106,21 +121,21 @@ export default function CalendarBuilder(
 		.attr("height", cellSize - 1)
 		.attr(
 			"x",
-			(d, i) => (WEEKS[d] % (getYear(WEEKS[d]) * 53)) * cellSize + 0.5
+			(d, i) => (WEEKS[d] % (getYear(WEEKS[d]) * 54)) * cellSize + 0.5
 		)
 		.attr("fill", (d) => color(QUANT[d]))
-		.on("mouseover", handleCellMouseOver.bind(this))
-		.on("mouseout", (event, d) => {
-			tooltip.style("opacity", 0).style("left", 0).style("top", 0);
-			event.currentTarget.style.stroke = "none";
-			event.currentTarget.style.strokeWidth = "0";
-		})
-		.style("border", "2px solid red");
+		.on("mouseover", handleCellMouseOver)
+		.on("mouseout", handleCellMouseOut)
+		.on("mousedown", handleCellMouseDown)
+		.on("click", handleCellClick);
 
 	const colorLegend = Legend(colorComputer, {
 		title: "No. of flights",
 		tickFormat: ".0f",
 	});
+
+	let selectedCells = [];
+
 	svg.append(() => colorLegend)
 		.attr("x", 5 * cellSize)
 		.attr("y", (YEARS.length + 5) * cellSize);
@@ -131,7 +146,7 @@ export default function CalendarBuilder(
 			.style("opacity", 0.9)
 			.html(
 				"Week " +
-					(WEEKS[d] % (getYear(WEEKS[d]) * 53)) +
+					(WEEKS[d] % (getYear(WEEKS[d]) * 54)) +
 					", " +
 					getYear(WEEKS[d]) +
 					"<br/>" +
@@ -140,8 +155,40 @@ export default function CalendarBuilder(
 			)
 			.style("left", event.pageX + cellSize + "px")
 			.style("top", event.pageY - 28 - cellSize + "px");
-		cell.style.stroke = "blue";
-		cell.style.strokeWidth = "1";
+		cell.style.stroke = "#f72585";
+		cell.style.strokeWidth = "2";
+		if(window.event.ctrlKey) {
+			handleCellMouseDown(event, d);
+		}
+	}
+
+	function handleCellMouseOut(event, d) {
+		let cell = event.currentTarget;
+		tooltip.style("opacity", 0).style("left", 0).style("top", 0);
+		cell.style.stroke = "none";
+		cell.style.strokeWidth = "0";
+	}
+
+	function handleCellMouseDown(event, d) {
+		let cell = event.currentTarget;
+		if (window.event.ctrlKey) {
+			selectedCells.push(cell);
+			d3.select(cell).on("mouseout", null);
+			console.log('asfsa');
+		}
+		else {
+			selectedCells.forEach(cell => d3.select(cell).on("mouseout", handleCellMouseOut));
+			selectedCells = [];
+		}
+	}
+
+	function handleCellClick(event, d) {
+		let cell = event.currentTarget;
+		if (window.event.ctrlKey) {
+			selectedCells.splice(selectedCells.indexOf(cell), 1);
+			d3.select(cell).on("mouseout", handleCellMouseOut);
+			handleCellMouseOut(event, d);
+		}
 	}
 
 	return Object.assign(svg.node(), {

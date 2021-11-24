@@ -1,8 +1,9 @@
 import CalendarComponent from "./components/Calendar";
 import Filters from './components/Filters'
 
-let data = require('./json/generated_data_1987_2008.json');
-let filterMetadata = require('./json/filters.json')
+let data = require('./json/Data_Output_Harith.json');
+let filterMetadata = require('./json/filters.json');
+data.sort((a,b) => a.Year - b.Year);
 function App() {
 	return (
 		<div className="App">
