@@ -25,7 +25,7 @@ export default function CalendarBuilder(
 		cellSize = 21, // width and height of an individual day, in pixels
 		formatMonth = "%b", // format specifier string for months (above the chart)
 		yFormat, // format specifier string for values (in the title)
-		colors = d3.interpolateGreens,
+		colors = d3.interpolateBrBG,
 		normalized = false
 	} = {}
 ) {
@@ -151,7 +151,7 @@ export default function CalendarBuilder(
 			.style("opacity", 0.9)
 			.html(
 				"Week " +
-					(WEEKS[d] % year * 54) +
+					(WEEKS[d] % (year * 54)) +
 					", " +
 					year +
 					"<br/>" +
