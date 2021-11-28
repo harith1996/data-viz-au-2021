@@ -6,6 +6,7 @@ const RD3Component = rd3.Component;
 function processData(data, normalize=false) {
 	let flightsPerYear = {};
 	data.sort((a, b) => a.Year - b.Year);
+	
 	if(normalize) {
 
 		//aggregate flights by year
@@ -19,7 +20,7 @@ function processData(data, normalize=false) {
 			item["weeks"] += 1;
 		});
 	
-		//interpolate flights for partial years
+		//interpolate flights for partial years (1987 and 2008)
 		for (let year in flightsPerYear) {
 			let item = flightsPerYear[year];
 			let interp = 53 - item["weeks"];
@@ -40,6 +41,8 @@ export default class CalendarComponent extends React.Component {
 		super(props);
 		const data = props.data;
 		this.normalize = true;
+
+		//<svg> element returned by d3
 		this.d3node = CalendarBuilder(processData(data, this.normalize), {
 			weekOfYear: (d) => d.week_number,
 			year: (d) => d.Year,

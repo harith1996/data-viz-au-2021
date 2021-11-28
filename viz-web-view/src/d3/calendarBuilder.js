@@ -14,45 +14,56 @@ const COLOR_SPLIT = 11;
 function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index;
 }
+/**
+ * Takes data aggregated by weeks and returns an <svg> HTML element representing a calendar view
+ * @param {Array<any>} data 
+ * @param {Object} options 
+ * @returns {HTMLElement}
+ */
 export default function CalendarBuilder(
 	data,
 	{
 		weekOfYear = ([weekOfYear]) => weekOfYear, // given d in data, returns the week value
 		year = ([year]) => year,
 		quant = ([quant]) => quant, // given d in data, returns the quantitative (y)-value
-		title, // given d in data, returns the title text
 		width = 1280, // width of the chart, in pixels
 		cellSize = 21, // width and height of an individual day, in pixels
-		formatMonth = "%b", // format specifier string for months (above the chart)
-		yFormat, // format specifier string for values (in the title)
-		colors = d3.interpolateBrBG,
+		colors = d3.interpolateRdYlBu, //color scale specifier. check https://github.com/d3/d3-scale-chromatic
 		normalized = false
 	} = {}
 ) {
-	// Compute values.
+	// Compute weeks. Ex: 1987 week 25 = 1987 * 54 + 25.
 	const WEEKS = d3.map(data, (d) => year(d) * 54 + weekOfYear(d));
+
+	//Get all unique years in the data set
 	const YEARS = d3.map(data, year).filter(onlyUnique);
+
+	//Get all quantities (no_of_flights). 
 	const QUANT = d3.map(data, quant);
+	
+	//Get index of all weeks
 	const I = d3.range(WEEKS.length);
 
+	//Input week number (for ex, week 404004)
 	const getYear = (week) => Math.floor(week / 54);
 	const heightOfYear = cellSize + 2;
 
-	// Compute a color scale. This assumes a discrete color scheme where the starting
-	// is minimum quanitity in the data, with COLOR_SPLIT colors upto maximum
-	const max = d3.quantile(QUANT, 0.965, Math.abs);
-	const min = d3.quantile(QUANT, 0.035, Math.abs);
-	// const colorComputer = d3
-	// 	.scaleQuantile()
-	// 	.domain([min, +max])
-	// 	.range(colors);
+	// Compute a sequential color scale
+
+	//Get 0.975-quantile of QUANT as the maximum of the color scale
+	const max = d3.quantile(QUANT, 0.975, Math.abs);
+
+	//Get 0.025-quantile of QUANT as the minimum of the color scale
+	const min = d3.quantile(QUANT, 0.025, Math.abs);
+
+	//compute the color scale
 	const colorComputer = d3.scaleSequential([min, max], colors);
 	const color = colorComputer.unknown("none");
 
-	// Group the index by year, in reverse input order. (Assuming that the input is
-	// chronological, this will show years in reverse chronological order.)
+	// Group the index I by year, in the order of the input
 	const GROUPED_YEARS = d3.groups(I, (i) => getYear(WEEKS[i]));
 
+	//Create root <svg> element
 	const svg = d3
 		.create("svg")
 		.attr("width", "90%")
@@ -72,7 +83,7 @@ export default function CalendarBuilder(
 	.selectAll("text")
 	.data(d3.range(0, 12))
 	.join("text")
-	.attr("x", (d, i) => d * 4 * cellSize + cellSize * 3 + i*6)
+	.attr("x", (data, idx) => data * 4 * cellSize + cellSize * 3 + idx*6)
 	.attr("y", -cellSize  * 1.5 )
 	.text((d) => MONTH[d]);
 
@@ -81,29 +92,30 @@ export default function CalendarBuilder(
 		.selectAll("text")
 		.data(d3.range(1, 54))
 		.join("text")
-		.attr("x", (d, i) => (i + 1) * cellSize + cellSize / 3)
+		.attr("x", (data, idx) => (idx + 1) * cellSize + cellSize / 3)
 		.attr("y", -cellSize * 1.4)
 		.text((d, i) => d);
 
-
+	//make a <g> for each YEAR in GROUPED_YEARS
 	const yearSvg = svg
 		.selectAll("g")
 		.data(GROUPED_YEARS)
 		.join("g")
 		.attr(
 			"transform",
-			(d, i) =>
-				`translate(${cellSize * 4}, ${heightOfYear * i + cellSize * 3 + 2 })`
+			(data, idx) =>
+				`translate(${cellSize * 4}, ${heightOfYear * idx + cellSize * 3 + 2 })`
 		);
 
-	//Year Axis
+	//Mame of the year
 	yearSvg
 		.append("text")
 		.attr("x", -5)
 		.attr("y", cellSize / 2)
 		.attr("dy", "0.31em")
-		.text((d, i) => d[0]);
+		.text((data, idx) => data[0]);
 
+	//tooltip when hovering over cell
 	let tooltip = d3
 		.select("body")
 		.append("div")
@@ -113,17 +125,17 @@ export default function CalendarBuilder(
 			tooltip.style("opacity", 0).style("top", 0).style("left", 0);
 		});
 
-	//cell
+	//Cell. Represent {Week, Year}
 	yearSvg
 		.append("g")
 		.selectAll("rect")
-		.data((d, i) => d[1])
+		.data((data, idx) => data[1])
 		.join("rect")
 		.attr("width", cellSize - 1)
 		.attr("height", cellSize - 1)
 		.attr(
 			"x",
-			(d, i) => (WEEKS[d] % (getYear(WEEKS[d]) * 54)) * cellSize + 0.5
+			(data, idx) => (WEEKS[data] % (getYear(WEEKS[data]) * 54)) * cellSize + 0.5
 		)
 		.attr("fill", (d) => color(QUANT[d]))
 		.on("mouseover", handleCellMouseOver)
@@ -133,6 +145,7 @@ export default function CalendarBuilder(
 		.style("stroke", "lightgray")
 		.style("stroke-width", 1);
 
+	//Color legend. Depends on normalization
 	const colorLegend = Legend(colorComputer, {
 		title: normalized? "% of flights" : "No. of flights",
 		tickFormat: normalized? ".02f" : "0.0f",
@@ -144,37 +157,46 @@ export default function CalendarBuilder(
 		.attr("x", 5 * cellSize)
 		.attr("y", (YEARS.length + 5) * cellSize);
 
-	function handleCellMouseOver(event, d) {
+	function handleCellMouseOver(event, data) {
 		let cell = event.currentTarget;
-		let year = getYear(WEEKS[d]);
+		let year = getYear(WEEKS[data]);
+
+		//Construct and display tooltip
 		tooltip
-			.style("opacity", 0.9)
 			.html(
 				"Week " +
-					(WEEKS[d] % (year * 54)) +
+					(WEEKS[data] % (year * 54)) +
 					", " +
 					year +
 					"<br/>" +
-					QUANT[d].toFixed(2) +
-					"% of all " + year + " flights"
+					(normalized? QUANT[data].toFixed(2) : QUANT[data]) +
+					(normalized ? "% of all ": " of ") + year + " flights"
 			)
 			.style("left", event.pageX + cellSize + "px")
-			.style("top", event.pageY - 28 - cellSize + "px");
+			.style("top", event.pageY - 28 - cellSize + "px")
+			.style("opacity", 0.9);
+
+		//Highlight cell with pink border
 		cell.style.stroke = "#f72585";
 		cell.style.strokeWidth = "2";
+
+		//If CTRL is held down, remove mouse down listener
 		if(window.event.ctrlKey) {
-			handleCellMouseDown(event, d);
+			handleCellMouseDown(event, data);
 		}
 	}
 
 	function handleCellMouseOut(event, d) {
 		let cell = event.currentTarget;
+		//Hide tooltip
 		tooltip.style("opacity", 0).style("left", 0).style("top", 0);
+
+		//remove cell hightlight
 		cell.style.stroke = "lightgray";
 		cell.style.strokeWidth = "1";
 	}
 
-	function handleCellMouseDown(event, d) {
+	function handleCellMouseDown(event, data) {
 		let cell = event.currentTarget;
 		if (window.event.ctrlKey) {
 			selectedCells.push(cell);
@@ -187,12 +209,12 @@ export default function CalendarBuilder(
 		}
 	}
 
-	function handleCellClick(event, d) {
+	function handleCellClick(event, data) {
 		let cell = event.currentTarget;
 		if (window.event.ctrlKey) {
 			selectedCells.splice(selectedCells.indexOf(cell), 1);
 			d3.select(cell).on("mouseout", handleCellMouseOut);
-			handleCellMouseOut(event, d);
+			handleCellMouseOut(event, data);
 		}
 	}
 
