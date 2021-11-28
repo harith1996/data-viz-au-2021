@@ -38,9 +38,12 @@ A visualization built on top of the [2009 data expo dataset](https://community.a
 
 ### Built With
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+This project was built with the following frameworks and libraries:
 
-* [Dask](https://dask.org/)
+* [SQLite](https://www.sqlite.org/index.html)
+* [D3](https://d3js.org/)
+* [React](https://reactjs.org/)
+* [React-d3](https://react-d3-library.github.io/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -50,13 +53,14 @@ This section should list any major frameworks/libraries used to bootstrap your p
 ## Getting Started
 #### Get the dataset
 
-1. Get the full dataset from [here](http://ww2.amstat.org/sections/graphics/datasets/DataExpo2009.zip). Extract the DataExpo2009.zip file. 
-2. Inside DataExpo2009, extract all .bz2 files to get the .csv files representing data for each year from 1987-2008.
-3. Move all .csv files to the 'CSVs' directory.
+1. Get the full dataset from [here](http://ww2.amstat.org/sections/graphics/datasets/DataExpo2009.zip). (If download doesn't start, right-click and "Save link as...").
+2. Extract the DataExpo2009.zip file. 
+3. Inside DataExpo2009, extract all .bz2 files to get the .csv files representing data for each year from 1987-2008.
+4. Move all .csv files to the 'CSVs' directory.
 
 ### Prerequisites
 
-* npm
+* NodeJS and npm. [Install NodeJS from here](https://nodejs.org/en/download/). After installing NodeJS, install the latest version of Node Package Manager by running: 
   ```sh
   npm install npm@latest -g
   ```
@@ -64,18 +68,18 @@ This section should list any major frameworks/libraries used to bootstrap your p
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone git@github.com:harith1996/data-viz-au-2021.git
    ```
-3. Install NPM packages
+2. Install packages needed for viz-web-view
    ```sh
+   cd viz-web-view
    npm install
    ```
-4. Enter your API in `config.js`
+4. Start the web view `config.js`
    ```js
-   const API_KEY = 'ENTER YOUR API';
+   npm start
    ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -105,21 +109,6 @@ _For more examples, please refer to the [Documentation](https://example.com)_
     - [] Spanish
 
 See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

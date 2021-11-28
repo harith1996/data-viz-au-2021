@@ -1,1 +1,2 @@
-CSVs/*.csv
+node_modules
+.vscode
