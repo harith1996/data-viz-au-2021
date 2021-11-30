@@ -33,14 +33,16 @@ for i in range(len(df_flight_paths)):
             locationmode = 'USA-states',
             lon = [df_flight_paths['start_lon'][i], df_flight_paths['end_lon'][i]],
             lat = [df_flight_paths['start_lat'][i], df_flight_paths['end_lat'][i]],
+			hoverinfo = 'text',
+			text = str(df_flight_paths['Total'][i]),
 			#lon = lons,
 			#lat = lats,
-            mode = 'lines',
-            line = dict(width = 1,color = 'red'),
+            mode = 'markers+lines',
+            line = dict(width = 1,color = 'black'),
 			name = df_flight_paths['Origin'][i],
-            #opacity = float(df_flight_paths['Total'][i]) / float(df_flight_paths['Total'].max()),
-			opacity = 0.5,
-			showlegend = False,
+            opacity = float(df_flight_paths['Total'][i]) / float(df_flight_paths['Total'].max()),
+			#opacity = 0.05,
+			#showlegend = False,
         )
    )
 #fig.add_trace(flight_paths)
@@ -62,7 +64,8 @@ airports = go.Scattergeo(
             width = 3,
             color = 'rgba(68, 68, 68, 0)'
         )
-    ))
+    )
+	)
 #)
 fig.add_trace(airports)
 
@@ -80,6 +83,7 @@ fig.update_layout(
         landcolor = 'rgb(243, 243, 243)',
         countrycolor = 'rgb(204, 204, 204)',
     ),
+	hovermode='closest',
 )
 
 
@@ -105,7 +109,7 @@ def display_click(clickData):
 	lon2 = []
 	lat2 = []
 	fig.for_each_trace(
-		lambda trace: trace.update(line=dict(color='black', width=3)) if trace.name == curr else (),
+		lambda trace: trace.update(line=dict(color='red'), opacity=0.5) if trace.name == curr else (),
 	)
 	return fig
 
