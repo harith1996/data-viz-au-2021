@@ -1,0 +1,51 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://d3js.org/d3.v6.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+    <p class="highcharts-description">
+        Chart showing column comparisons with negative values.
+        Column charts are commonly used to compare values, and remains one of
+        the most popular and readable types of charts.
+    </p>
+</figure>
+<script>
+const wd = [{"Total_Flights":2216995,"week_number":1},{"Total_Flights":2237785,"week_number":2},{"Total_Flights":2230091,"week_number":3},{"Total_Flights":2255855,"week_number":4},{"Total_Flights":2252480,"week_number":5},{"Total_Flights":2243553,"week_number":6},{"Total_Flights":2265640,"week_number":7},{"Total_Flights":2283486,"week_number":8},{"Total_Flights":2294355,"week_number":9},{"Total_Flights":2284503,"week_number":10},{"Total_Flights":2312598,"week_number":11},{"Total_Flights":2315159,"week_number":12},{"Total_Flights":2320758,"week_number":13},{"Total_Flights":2319629,"week_number":14},{"Total_Flights":2315601,"week_number":15},{"Total_Flights":2322442,"week_number":16},{"Total_Flights":2322311,"week_number":17},{"Total_Flights":2237880,"week_number":18},{"Total_Flights":2174118,"week_number":19},{"Total_Flights":2172789,"week_number":20},{"Total_Flights":2140519,"week_number":21},{"Total_Flights":2166782,"week_number":22},{"Total_Flights":2192245,"week_number":23},{"Total_Flights":2204467,"week_number":24},{"Total_Flights":2210002,"week_number":25},{"Total_Flights":2193048,"week_number":26},{"Total_Flights":2163042,"week_number":27},{"Total_Flights":2223487,"week_number":28},{"Total_Flights":2219827,"week_number":29},{"Total_Flights":2220032,"week_number":30},{"Total_Flights":2226067,"week_number":31},{"Total_Flights":2231346,"week_number":32},{"Total_Flights":2226784,"week_number":33},{"Total_Flights":2226266,"week_number":34},{"Total_Flights":2166131,"week_number":35},{"Total_Flights":2172546,"week_number":36},{"Total_Flights":2092542,"week_number":37},{"Total_Flights":2145067,"week_number":38},{"Total_Flights":2164320,"week_number":39},{"Total_Flights":2230195,"week_number":40},{"Total_Flights":2267730,"week_number":41},{"Total_Flights":2272609,"week_number":42},{"Total_Flights":2267451,"week_number":43},{"Total_Flights":2263400,"week_number":44},{"Total_Flights":2265359,"week_number":45},{"Total_Flights":2258822,"week_number":46},{"Total_Flights":2180872,"week_number":47},{"Total_Flights":2192843,"week_number":48},{"Total_Flights":2234826,"week_number":49},{"Total_Flights":2221164,"week_number":50},{"Total_Flights":2228951,"week_number":51},{"Total_Flights":2155793,"week_number":52}];
+var avg = parseInt(d3.mean(wd, function(d) { return d.Total_Flights;}));
+var norm = d3.map(wd, function(d) { return d.Total_Flights - avg;});
+console.log(norm);
+var wn = []
+for(var i = 1; i <= 52; i++) {
+	wn.push(i);
+	}
+Highcharts.chart('container', {
+  chart: {
+    type: 'column'
+  },
+  title: {
+    text: 'Column chart with negative values'
+  },
+  xAxis: {
+    categories: wn
+  },
+  credits: {
+    enabled: false
+  },
+  legend: {
+	enabled: false
+	},
+  series: [/*{
+    name: 'John',
+    data: [5, 3, 4, 7, 2]
+  },*/ {
+    name: 'Deviation of Weekly Flights from Mean',
+    data: norm
+  } /*{
+    name: 'Joe',
+    data: [3, 4, 4, -2, 5]
+  }*/]
+});
+</script>
