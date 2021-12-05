@@ -8,8 +8,11 @@ import "d3-scale-chromatic";
 import Legend from "../d3/colorLegend";
 
 const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
-//how many colors should be used to represent quant
-const COLOR_SPLIT = 11;
+
+function dateFromDay(year, day){
+	var date = new Date(year, 0); // initialize a date in `year-01-01`
+	return new Date(date.setDate(day)); // add the number of days
+  }
 
 function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index;
@@ -28,8 +31,9 @@ export default function CalendarBuilder(
 		quant = ([quant]) => quant, // given d in data, returns the quantitative (y)-value
 		width = 1280, // width of the chart, in pixels
 		cellSize = 21, // width and height of an individual day, in pixels
-		colors = d3.interpolateRdYlBu, //color scale specifier. check https://github.com/d3/d3-scale-chromatic
-		normalized = false
+		colors = d3.interpolateRdYlBu, //color scale interpolator. check https://github.com/d3/d3-scale-chromatic#interpolateRdYlBu
+		normalized = false,
+		weekStart = 0
 	} = {}
 ) {
 	// Compute weeks. Ex: 1987 week 25 = 1987 * 54 + 25.
@@ -119,7 +123,7 @@ export default function CalendarBuilder(
 	let tooltip = d3
 		.select("body")
 		.append("div")
-		.attr("class", "cell-tooltip")
+		.attr("class", "cell-tooltip tooltip")
 		.style("opacity", 0)
 		.on("mouseover", (event, data) => {
 			tooltip.style("opacity", 0).style("top", 0).style("left", 0);
@@ -176,24 +180,20 @@ export default function CalendarBuilder(
 			.style("top", event.pageY - 28 - cellSize + "px")
 			.style("opacity", 0.9);
 
-		//Highlight cell with pink border
-		cell.style.stroke = "#f72585";
-		cell.style.strokeWidth = "2";
+		hightlightCell(cell);
 
 		//If CTRL is held down, remove mouse down listener
 		if(window.event.ctrlKey) {
 			handleCellMouseDown(event, data);
 		}
+		// console.log(yearSvg._groups[0][year-1987].childNodes[1].childNodes[(WEEKS[data] % (year * 54))].__data__);
 	}
 
 	function handleCellMouseOut(event, d) {
 		let cell = event.currentTarget;
 		//Hide tooltip
 		tooltip.style("opacity", 0).style("left", 0).style("top", 0);
-
-		//remove cell hightlight
-		cell.style.stroke = "lightgray";
-		cell.style.strokeWidth = "1";
+		unHighlightCell(cell);
 	}
 
 	function handleCellMouseDown(event, data) {
@@ -216,6 +216,25 @@ export default function CalendarBuilder(
 			d3.select(cell).on("mouseout", handleCellMouseOut);
 			handleCellMouseOut(event, data);
 		}
+	}
+
+	/**
+	 * Highlight cell with pink border
+	 * @param {HTMLElement} cell 
+	 */
+	function hightlightCell(cell) {
+		cell.style.stroke = "#f72585";
+		cell.style.strokeWidth = "2";
+	}
+
+	/**
+	 * Restore original border of a cell
+	 * @param {HTMLElement} cell 
+	 */
+	function unHighlightCell(cell) {
+		//remove cell hightlight
+		cell.style.stroke = "lightgray";
+		cell.style.strokeWidth = "1";
 	}
 
 	return Object.assign(svg.node(), {
