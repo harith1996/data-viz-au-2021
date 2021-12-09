@@ -8,6 +8,7 @@ export default class Filters extends React.Component {
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.formData = props.formData || {};
 		this.metadata = props.metadata;
+		this.externalOnSubmit = props.onSubmit;
 	}
 
 	handleChange(event) {
@@ -56,11 +57,13 @@ export default class Filters extends React.Component {
 
 	handleSubmit(event) {
 		event.preventDefault();
+		this.externalOnSubmit(this.state.form);
 	}
 
 	render() {
 		return (
-			<form className="filterForm" onChange={this.handleChange}>
+			<form onChange={this.handleChange} onSubmit={this.handleSubmit}>
+				<div className="filterForm">
 				{this.metadata.filters.map((filter) => {
 					let out;
 					switch (filter.selectionType) {
@@ -102,6 +105,8 @@ export default class Filters extends React.Component {
 					}
 					return out;
 				})}
+				<input style={{marginTop: 30, marginLeft: 40, maxHeight: 30}} type='submit'></input>
+				</div>
 			</form>
 		);
 	}

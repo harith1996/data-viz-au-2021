@@ -1,7 +1,9 @@
 import React from "react";
 import rd3 from "react-d3-library";
 import * as d3 from "d3";
+import Filters from "../components/Filters";
 import CalendarBuilder from "../d3/calendarBuilder";
+let filterMetadata = require("../json/filters.json");
 
 const RD3Component = rd3.Component;
 const WEEK_START = 0;
@@ -12,26 +14,6 @@ function prunedData(data, startDay) {
 			acc.push(item);
 		}
 		return acc;
-	}, []);
-}
-
-function getWeeklyOverAllYears(data) {
-	//for years, instead of range(1,53) make a range from 1987,2008
-	return d3.range(1, 54).map(function (week_no) {
-		return data.reduce(
-			function (acc, item) {
-				// if (item.Year !== 1987 && item.Year!== 2008) {
-				if (item.week_number === week_no) {
-					acc["week_number"] = week_no;
-					acc["Total_Flights"] += item.Total_Flights;
-				}
-				// }
-				return acc;
-			},
-			{
-				Total_Flights: 0,
-			}
-		);
 	}, []);
 }
 
@@ -73,11 +55,15 @@ export default class CalendarComponent extends React.Component {
 	constructor(props) {
 		super(props);
 		const data = props.data;
-		this.normalize = true;
+		const weeklyAggData = props.weekly;
+		const yearlyAggData = props.yearly;
 		// data = prunedData(data, START_DAY );
-		// let x = getWeeklyOverAllYears(data);
 
 		//<svg> element returned by d3
+		this.normalize = true;
+		this.data = data;
+		this.weekly = weeklyAggData;
+		this.yearly = yearlyAggData;
 		this.d3node = CalendarBuilder(processData(data, this.normalize), {
 			weekOfYear: (d) => d.week_number,
 			year: (d) => d.Year,
@@ -85,8 +71,10 @@ export default class CalendarComponent extends React.Component {
 			title: (d) => "Week :" + d.Week + "\nYear:" + d.Year,
 			normalized: this.normalize,
 			weekStart: WEEK_START,
+			weeklyAggData: weeklyAggData,
+			yearlyAggData: yearlyAggData,
 		});
-		this.state = { d3: "", normalize: this.normalize };
+		this.state = { d3: "", normalize: this.normalize, show_53: true };
 	}
 
 	componentDidMount() {
@@ -97,10 +85,45 @@ export default class CalendarComponent extends React.Component {
 		console.log(prevState);
 	}
 
+	handleWeek53Toggle(val) {
+		this.state.show_53 = val.target.checked;
+	}
+
+	onFilterSubmit(event) {
+		console.log(event);
+		this.d3node = CalendarBuilder(processData(this.data, false), {
+			weekOfYear: (d) => d.week_number,
+			year: (d) => d.Year,
+			quant: (d) => d.Total_Flights,
+			title: (d) => "Week :" + d.Week + "\nYear:" + d.Year,
+			normalized: this.normalize,
+			weekStart: WEEK_START,
+			weeklyAggData: this.weekly,
+			yearlyAggData: this.yearly,
+		});
+		this.setState({
+			d3: this.d3node,
+			normalize: this.normalize,
+			show_53: true,
+		});
+	}
+
 	render() {
 		return (
 			<div>
+				<Filters
+					metadata={filterMetadata}
+					onSubmit={this.onFilterSubmit.bind(this)}
+				/>
 				<div>
+					<div id="week-53-flag">
+						<input
+							type="checkbox"
+							name="show_53"
+							onChange={this.handleWeek53Toggle.bind(this)}
+						></input>
+						<label for="show_53">Show week 53</label>
+					</div>
 					<RD3Component data={this.state.d3} />
 				</div>
 			</div>

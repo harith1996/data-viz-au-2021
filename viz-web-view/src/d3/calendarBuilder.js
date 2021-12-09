@@ -6,8 +6,8 @@ import "d3-color";
 import "d3-interpolate";
 import "d3-scale-chromatic";
 import Legend from "../d3/colorLegend";
-import getWeeklyBarChart from "./barChartWeekly";
-import getYearlyBarChart from "./barChartYearly";
+import addWeeklyBarChart from "./barChartWeekly";
+import addYearlyBarChart from "./barChartYearly";
 
 const MONTH = [
 	"Jan",
@@ -44,15 +44,17 @@ export default function CalendarBuilder(
 		weekOfYear = ([weekOfYear]) => weekOfYear, // given d in data, returns the week value
 		year = ([year]) => year,
 		quant = ([quant]) => quant, // given d in data, returns the quantitative (y)-value
-		width = 1280, // width of the chart, in pixels
+		width = 2160, // width of the chart, in pixels
 		cellSize = 16, // width and height of an individual day, in pixels
 		colors = d3.interpolateRdYlBu, //color scale interpolator. check https://github.com/d3/d3-scale-chromatic#interpolateRdYlBu
 		normalized = false,
 		weekStart = 0,
+		weeklyAggData,
+		yearlyAggData
 	} = {}
 ) {
-	const yearlyBarChartWidth = 400;
-	const weeklyBarChartHeight = 400;
+	const yearlyBarChartWidth = 550;
+	const weeklyBarChartHeight = 150;
 	// Compute weeks. Ex: 1987 week 25 = 1987 * 54 + 25.
 	const WEEKS = d3.map(data, (d) => year(d) * 54 + weekOfYear(d));
 
@@ -87,42 +89,69 @@ export default function CalendarBuilder(
 	//Create root <svg> element
 	const svg = d3
 		.create("svg")
-		.attr("width", "100%")
+		.attr("width", width)
 		.attr("height", "100%")
 		.attr("viewBox", [
 			0,
 			0,
 			width,
-			heightOfYear * (YEARS.length + 12) + cellSize,
+			heightOfYear * (YEARS.length + 12) + cellSize + 100,
 		])
-		.attr("style", "max-width: 100%; height: auto; height: intrinsic;")
 		.attr("font-family", "sans-serif")
 		.attr("font-size", 10);
 
+		
+	addWeeklyBarChart(weeklyAggData, svg, yearlyBarChartWidth + 85, 0, weekHoverHandler);
+	addYearlyBarChart(yearlyAggData, svg, 0, weeklyBarChartHeight + 50, yearHoverHandler);
+
 	const calendar = svg.append('g');
 	calendar
-	.attr("x", yearlyBarChartWidth)
-	.attr("y", weeklyBarChartHeight);
+	.attr(
+		"transform",
+		(data, idx) =>
+			`translate(${yearlyBarChartWidth}, ${
+				weeklyBarChartHeight
+			})`
+	);
 	//Month axis
-	calendar.append("g")
+	const monthAxis = calendar
+	.append("g")
+	.attr("transform", `translate(${cellSize * 4}, ${
+		cellSize * 3
+	})`);
+	monthAxis
 		.selectAll("text")
 		.data(d3.range(0, 12))
 		.join("text")
-		.attr("x", (data, idx) => data * 4 * cellSize + cellSize * 3 + idx * 6)
-		.attr("y", -cellSize * 1.5)
+		.attr(
+			"transform",
+			(data, idx) =>
+				`translate(${data * 4 * cellSize + cellSize * 3 + idx * 6}, ${
+					-cellSize * 1.5
+				})`
+		)
 		.text((d) => MONTH[d]);
 
 	//Week Axis
-	calendar.append("g")
+	const weekAxis = calendar.append("g").
+	attr("transform", `translate(${cellSize * 4}, ${
+		cellSize * 4
+	})`);
+	weekAxis.append("g")
 		.selectAll("text")
 		.data(d3.range(1, 54))
 		.join("text")
-		.attr("x", (data, idx) => (idx + 1) * cellSize + cellSize / 3 + 8)
-		.attr("y", -cellSize * 1.4)
+		.attr("transform", (data, idx) => `translate(${(idx + 1) * cellSize + cellSize / 3 + 8}, ${
+			-cellSize * 1.4
+		})`)
+		// .attr("x", (data, idx) => (idx + 1) * cellSize + cellSize / 3 + 8)
+		// .attr("y", -cellSize * 1.4)
 		.text((d, i) => d);
 
+	//make a grid section
+	const grid = calendar.append('g');
 	//make a <g> for each YEAR in GROUPED_YEARS
-	const yearSvg = calendar
+	const yearSvg = grid
 		.selectAll("g")
 		.data(GROUPED_YEARS)
 		.join("g")
@@ -183,7 +212,7 @@ export default function CalendarBuilder(
 
 	calendar.append(() => colorLegend)
 		.attr("x", 5 * cellSize)
-		.attr("y", (YEARS.length + 5) * cellSize);
+		.attr("y", (YEARS.length + 6) * cellSize);
 
 	function handleCellMouseOver(event, data) {
 		let cell = event.currentTarget;
@@ -264,8 +293,13 @@ export default function CalendarBuilder(
 		cell.style.strokeWidth = "1";
 	}
 
-	getYearlyBarChart(svg);
-	getWeeklyBarChart(svg);
+	function weekHoverHandler(data) {
+		console.log(data);
+	}
+
+	function yearHoverHandler(data) {
+		console.log(data);
+	}
 
 	return Object.assign(svg.node(), {
 		scales: { color },
