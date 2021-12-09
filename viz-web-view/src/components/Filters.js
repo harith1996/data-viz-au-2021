@@ -62,7 +62,7 @@ export default class Filters extends React.Component {
 
 	render() {
 		return (
-			<form onChange={this.handleChange} onSubmit={this.handleSubmit}>
+			<form style={{zIndex: 4}} onChange={this.handleChange} onSubmit={this.handleSubmit}>
 				<div className="filterForm">
 				{this.metadata.filters.map((filter) => {
 					let out;
