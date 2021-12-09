@@ -50,7 +50,8 @@ export default function CalendarBuilder(
 		normalized = false,
 		weekStart = 0,
 		weeklyAggData,
-		yearlyAggData
+		yearlyAggData,
+		svg
 	} = {}
 ) {
 	const yearlyBarChartWidth = 550;
@@ -87,8 +88,8 @@ export default function CalendarBuilder(
 	const GROUPED_YEARS = d3.groups(I, (i) => getYear(WEEKS[i]));
 
 	//Create root <svg> element
-	const svg = d3
-		.create("svg")
+	svg.selectAll('*').remove();
+	svg
 		.attr("width", width)
 		.attr("height", "100%")
 		.attr("viewBox", [
@@ -301,10 +302,10 @@ export default function CalendarBuilder(
 		console.log(data);
 	}
 
-	return Object.assign(svg.node(), {
-		scales: { color },
-		colorLegend: colorLegend,
-	});
+	// return Object.assign(svg.node(), {
+	// 	scales: { color },
+	// 	colorLegend: colorLegend,
+	// });
 }
 
 

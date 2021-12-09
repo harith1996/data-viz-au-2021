@@ -105,7 +105,7 @@ export default class Filters extends React.Component {
 					}
 					return out;
 				})}
-				<input style={{marginTop: 30, marginLeft: 40, maxHeight: 30}} type='submit'></input>
+				<input style={{marginTop: 30, marginLeft: 40, maxHeight: 30}} type='submit' value="Apply"></input>
 				</div>
 			</form>
 		);
