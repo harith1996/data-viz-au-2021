@@ -153,7 +153,7 @@ export default class CalendarComponent extends React.Component {
 							name="show_53"
 							onChange={this.handleWeek53Toggle.bind(this)}
 						></input>
-						<label for="show_53">Hide week 53</label>
+						<label for="show_53">Remove week 53</label>
 					</div>
 					<svg id='my-svg'></svg>
 				</div>
