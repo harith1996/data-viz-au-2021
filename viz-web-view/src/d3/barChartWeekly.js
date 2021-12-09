@@ -29,7 +29,7 @@ const chart = svg.append('g');
 chart.append("text")
 .text(`Weekly Avg (excluding 1987 and 2008): ${avg.toLocaleString()} flights`)
 .attr("transform", `translate(${100}, ${
-  100 + 10
+  0
 })`);
   
 chart.attr(
@@ -79,7 +79,7 @@ chart.selectAll(".bar")
 		.attr("class", "bar-tooltip tooltip")
 		.style("opacity", 0)
 		.on("mouseover", (event, data) => {
-			barTooltip.style("opacity", 0).style("top", 0).style("left", 0);
+			barTooltip.style("opacity", 0).style("top", 400).style("left", 0);
 		});
 
     function showBarTooltip(bar, data, event) {
@@ -101,7 +101,7 @@ chart.selectAll(".bar")
     function hideBarTooltip() {
       barTooltip
 			.style("left", 0 + "px")
-			.style("top", 0 + "px")
+			.style("top", 200 + "px")
 			.style("opacity", 0.0);
     }
 

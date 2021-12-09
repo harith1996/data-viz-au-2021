@@ -55,8 +55,8 @@ svg.append('g')
 
 	chart.append("text")
 		.text(`Yearly Avg: ${avg.toLocaleString()} flights`)
-		.attr("transform", `translate(${100}, ${
-		100 + 10
+		.attr("transform", `translate(${300}, ${
+		0
 		})`);
 
 	const yAxis = d3.axisLeft(y).tickSize(0).tickFormat("");
@@ -111,7 +111,7 @@ svg.append('g')
 		.attr("class", "bar-tooltip tooltip")
 		.style("opacity", 0)
 		.on("mouseover", (event, data) => {
-			barTooltip.style("opacity", 0).style("top", 0).style("left", 0);
+			barTooltip.style("opacity", 0).style("top", 400).style("left", 0);
 		});
 
 	function showBarTooltip(bar, data, event) {
@@ -133,7 +133,7 @@ svg.append('g')
 	function hideBarTooltip() {
 		barTooltip
 			.style("left", 0 + "px")
-			.style("top", 0 + "px")
+			.style("top", 200 + "px")
 			.style("opacity", 0.0);
 	}
 

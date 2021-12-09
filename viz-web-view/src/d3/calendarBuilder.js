@@ -248,7 +248,7 @@ export default function CalendarBuilder(
 	function handleCellMouseOut(event, d) {
 		let cell = event.currentTarget;
 		//Hide tooltip
-		tooltip.style("opacity", 0).style("left", 0).style("top", 0);
+		tooltip.style("opacity", 0).style("left", 0).style("top", 600);
 		unHighlightCell(cell);
 	}
 

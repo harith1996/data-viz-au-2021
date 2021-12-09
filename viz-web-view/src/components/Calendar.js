@@ -3,9 +3,14 @@ import * as d3 from "d3";
 import Filters from "../components/Filters";
 import CalendarBuilder from "../d3/calendarBuilder";
 let filterMetadata = require("../json/filters.json");
-
+const DATASETS = {
+	"American Airlines_SEA_DFW" : require("../json/SummarisedWeekly_Filter_American Airlines_SEA_DFW.json"),
+	"United Airlines_LAX_SFO" : require("../json/SummarisedWeekly_Filter_United Airlines_LAX_SFO.json"),
+	"__": require("../json/Data_Output_Harith.json")
+}
 const WEEK_START = 0;
 const WEEK_LIMIT = 53;
+const FILTERED_DATASET_PREFIX = '../json/SummarisedWeekly_Filter_';
 function prunedData(data, startDay) {
 	return data.reduce(function (acc, item) {
 		if (item.day_of_year > startDay) {
@@ -87,7 +92,8 @@ export default class CalendarComponent extends React.Component {
 		this.normalize = true;
 		this.data = props.data;
 		this.originalData = JSON.parse(JSON.stringify(props.data));
-		this.state = { d3: "", normalize: this.normalize, show_53: true };
+		this.remove_53 = false;
+		this.state = { d3: "", normalize: this.normalize, remove_53: this.remove_53 };
 	}
 
 	computeWeeklyAndYearly() {
@@ -110,6 +116,10 @@ export default class CalendarComponent extends React.Component {
 		});
 	}
 
+	setDataset() {
+
+	}
+
 	componentDidMount() {
 		this.computeWeeklyAndYearly();
 		this.buildCalendar();
@@ -123,21 +133,47 @@ export default class CalendarComponent extends React.Component {
 	handleWeek53Toggle(event) {
 		const hideWeek53 = event.target.checked;
 		if(hideWeek53) {
-			this.data = this.data.filter((item) => item.week_number!=53);
+			this.remove53()
 		}
 		else {
-			this.data = this.originalData;
+			this.show53()
 		}
 		this.computeWeeklyAndYearly();
 		this.buildCalendar();
 	}
 
-	onFilterSubmit(filterData) {
-		console.log(filterData);
-		// this.modifyData(filterData);
+	show53() {
+		this.data = this.originalData;
+	}
+
+	remove53() {
+		this.data = this.data.filter((item) => item.week_number!=53);
+	}
+
+	onFilterSubmit(filterParams) {
+		console.log(filterParams);
+		this.modifyData(this.extractFilteredDataset(filterParams));
 		this.buildCalendar();
 	}
 
+	extractFilteredDataset(filterParams){
+		const filterSummary = (filterParams.reduce((acc, attribute) => {
+			acc.push(attribute.filters.reduce((acc, filter) => {
+				if(filter.isSelected) {
+					acc.push(filter.value);
+				}
+				return acc
+			}, []).join(''));
+			return acc;
+		}, [])).join('_');
+		return DATASETS[filterSummary];
+	}
+
+	modifyData(newData) {
+		this.data = newData;
+		this.computeWeeklyAndYearly();
+		this.buildCalendar();
+	}
 
 	render() {
 		return (
@@ -152,6 +188,7 @@ export default class CalendarComponent extends React.Component {
 							type="checkbox"
 							name="show_53"
 							onChange={this.handleWeek53Toggle.bind(this)}
+							value = {this.show_53}
 						></input>
 						<label for="show_53">Remove week 53</label>
 					</div>
