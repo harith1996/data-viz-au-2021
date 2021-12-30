@@ -8,12 +8,12 @@
 		{
 			"attributeName": "Origin",
 			"selectionType": "multiple",
-			"values": ["JFK", "SFO", "ABIA"]
+			"values": ["SEA", "SFO", "LAX", "DFW"]
 		},
 		{
 			"attributeName": "Destination",
 			"selectionType": "multiple",
-			"values": ["JFK", "SFO", "ABIA"]
+			"values": ["SEA", "SFO", "LAX", "DFW"]
 		}
 	]
 }

@@ -1,14 +1,12 @@
 import CalendarComponent from "./components/Calendar";
-import Filters from "./components/Filters";
+import * as d3 from 'd3';
 
-let filterMetadata = require("./json/filters.json");
 let data = require("./json/Data_Output_Harith.json");
 
 function App() {
 	return (
 		<div className="App">
-			<Filters metadata={filterMetadata} />
-			<CalendarComponent data={data} />
+			<CalendarComponent data={data}/>
 		</div>
 	);
 }

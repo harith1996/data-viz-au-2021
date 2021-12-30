@@ -35,12 +35,24 @@ code {
 }
 
 .cell-tooltip {
-	position: absolute;
-	cursor: default;
 	background: rgba(0, 0, 0, 0.9);
 	border-radius: 15px;
 	padding: 8px;
 	color: white;
-	font-family: SYSTEM-UI;
 	border: solid 2px blue;
+}
+
+.tooltip {
+	position: absolute;
+	cursor: default;
+	font-family: SYSTEM-UI;
+}
+
+.bar-tooltip {
+	background: rgba(0, 0, 0, 0.9);
+	border-radius: 15px;
+	padding: 8px;
+	color: white;
+	border: solid 2px blue;
+	font-size: 0.7em;
 }
