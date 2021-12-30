@@ -40,6 +40,8 @@ A visualization built on top of the [2009 data expo dataset](https://community.a
 
 This project was built with the following frameworks and libraries:
 
+* [Pandas](https://pandas.pydata.org/)
+* [Numpy](https://numpy.org/)
 * [SQLite](https://www.sqlite.org/index.html)
 * [D3](https://d3js.org/)
 * [React](https://reactjs.org/)
