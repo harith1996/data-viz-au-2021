@@ -1,4 +1,4 @@
-# Data Visualization Project - Aarhus University 2021
+# A Visualization of flight data in USA (1987-2008)
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
