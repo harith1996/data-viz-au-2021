@@ -4,7 +4,7 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
+      <a href="#introduction">Introduction</a>
       <ul>
         <li><a href="#built-with">Built With</a></li>
       </ul>
@@ -17,24 +17,22 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
+    <li><a href="#known-issues">Known Issues</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
 
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## Introduction
 
-A visualization built on top of the [2009 data expo dataset](https://community.amstat.org/jointscsg-section/dataexpo/dataexpo2009) of Airline on-time performance for flights in USA.
+This is a visualization for the [2009 data expo dataset](https://community.amstat.org/jointscsg-section/dataexpo/dataexpo2009) of Airline on-time performance of flights in USA.
+The purpose of this is to find *weekly trends* in number of flights from 1987-2008 and spot weeks in which the number of flights *deviate from an average*.
+
+![Screenshot](screenshot.png)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
 
 ### Built With
 
@@ -53,12 +51,6 @@ This project was built with the following frameworks and libraries:
 
 <!-- GETTING STARTED -->
 ## Getting Started
-#### Get the dataset
-
-1. Get the full dataset from [here](http://ww2.amstat.org/sections/graphics/datasets/DataExpo2009.zip). (If download doesn't start, right-click and "Save link as...").
-2. Extract the DataExpo2009.zip file. 
-3. Inside DataExpo2009, extract all .bz2 files to get the .csv files representing data for each year from 1987-2008.
-4. Move all .csv files to the 'CSVs' directory.
 
 ### Prerequisites
 
@@ -66,7 +58,7 @@ This project was built with the following frameworks and libraries:
   ```sh
   npm install npm@latest -g
   ```
-* python 3.x
+* python 3.x (only if you want to build the aggregated datasets yourself. if not, python is not required)
 
 ### Installation
 
@@ -79,51 +71,30 @@ This project was built with the following frameworks and libraries:
    cd viz-web-view
    npm install
    ```
-4. Start the web view `config.js`
+4. Start the web view
    ```js
    npm start
    ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+Refer this [youtube video tutorial](https://youtu.be/WKlim8eWj6I) on how to use the app.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+<!-- KNOWN ISSUES -->
+## Known Issues
+Filters - Becuase of the size of the dataset, only the following filter combinations have been preprocessed and are currently supported:
 
+American Airlines - SEA - DFW
 
-<!-- ROADMAP -->
-## Roadmap
+United Airlines - LAX - SFO
 
-- [x] Add Changelog
-- [x] Add back to top links
-- [] Add Additional Templates w/ Examples
-- [] Add "components" document to easily copy & paste sections of the readme
-- [] Multi-language Support
-    - [] Chinese
-    - [] Spanish
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
+### Get the dataset
+If you want to build custom aggregates and analyse the data your own way, you can get the full dataset from [here](http://ww2.amstat.org/sections/graphics/datasets/DataExpo2009.zip).
 <!-- CONTACT -->
 ## Contact
 
