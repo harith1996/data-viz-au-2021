@@ -75,10 +75,10 @@ export default function CalendarBuilder(
 	// Compute a sequential color scale
 
 	//Get 0.975-quantile of QUANT as the maximum of the color scale
-	const max = d3.quantile(QUANT, 0.975, Math.abs);
+	const max = d3.quantile(QUANT, 0.985);
 
 	//Get 0.025-quantile of QUANT as the minimum of the color scale
-	const min = d3.quantile(QUANT, 0.025, Math.abs);
+	const min = d3.quantile(QUANT, 0.035);
 
 	//compute the color scale
 	const colorComputer = d3.scaleSequential([min, max], colors);
@@ -111,7 +111,7 @@ export default function CalendarBuilder(
 		"transform",
 		(data, idx) =>
 			`translate(${yearlyBarChartWidth}, ${
-				weeklyBarChartHeight
+				weeklyBarChartHeight + 20
 			})`
 	);
 	//Month axis
@@ -205,7 +205,7 @@ export default function CalendarBuilder(
 
 	//Color legend. Depends on normalization
 	const colorLegend = Legend(colorComputer, {
-		title: normalized ? "% of flights" : "No. of flights",
+		title: normalized ? "% deviation of flights from average" : "No. of flights",
 		tickFormat: normalized ? ".02f" : "0.0f",
 	});
 
@@ -228,9 +228,9 @@ export default function CalendarBuilder(
 					year +
 					"<br/>" +
 					(normalized ? QUANT[data].toFixed(2) : QUANT[data]) +
-					(normalized ? "% of all " : " of ") +
+					(normalized ? "% deviation from " : " of ") +
 					year +
-					" flights"
+					" avg flights"
 			)
 			.style("left", event.pageX + cellSize + "px")
 			.style("top", event.pageY - 28 - cellSize + "px")

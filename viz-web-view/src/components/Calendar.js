@@ -105,7 +105,7 @@ export default class CalendarComponent extends React.Component {
 		CalendarBuilder(processData(this.data, this.normalize), {
 			weekOfYear: (d) => d.week_number,
 			year: (d) => d.Year,
-			quant: (d) => d.Total_Flights,
+			quant: (d) => d.Total_Flights - 1.88,
 			title: (d) => "Week :" + d.Week + "\nYear:" + d.Year,
 			normalized: this.normalize,
 			weekStart: WEEK_START,
